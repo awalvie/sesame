@@ -3,9 +3,10 @@ import uuid
 from dotenv import load_dotenv
 from slack_bolt import App
 from slack_bolt.adapter.socket_mode import SocketModeHandler
+from slack_sdk.web import WebClient
 
 from gcloud import create_permission, search_role
-from payload import form, request_text
+from payload import approve_dm, form, reject_dm, reject_text, request_text, success_text
 
 load_dotenv()
 
@@ -27,7 +28,7 @@ perm_request_cache = {}
 
 @app.command("/sesame")
 @app.shortcut("request_iam_permission")
-def open_modal(ack, body, client):
+def open_modal(ack, body, client: WebClient):
     # Acknowledge the command request
     ack()
 
@@ -41,8 +42,10 @@ def open_modal(ack, body, client):
 
 
 @app.view("perm_form")
-def handle_view_submission_events(ack, body, client):
+def handle_view_submission_events(ack, body, client: WebClient):
     ack()
+
+    user_id = body["user"]["id"]
     values = body["view"]["state"]["values"]
     project = values["project_choice"]["project_choice-action"]["selected_option"][
         "value"
@@ -74,62 +77,113 @@ def handle_view_submission_events(ack, body, client):
         perm_request_cache[key] = {
             "project": project,
             "perms": perms,
-            "duration": float(duration),
+            "duration": duration,
             "email": email,
             "channel": channel,
             "timestamp": timestamp,
+            "user_id": user_id,
         }
         print(perm_request_cache)
 
 
-@app.message("send")
-def send_text(ack, client):
-    ack()
-
-    request_config = request_text(
-        project="development",
-        perms=[
-            "roles/accesscontextmanager.gcpAccessAdmin",
-            "roles/accessapproval.viewer",
-        ],
-        duration="30",
-        email="vaibhav@deepsource.io",
-    )
-
-    print(request_config)
-
-    result = client.chat_postMessage(
-        channel=SLACK_PRIVATE_CHANNEL_ID,
-        text="IAM permission requested",
-        blocks=request_config,
-    )
-
-    print(result)
-
-
 @app.action("request-approved")
-def handle_request_approval(ack, body):
+def handle_request_approval(ack, body, client: WebClient):
     ack()
 
     key = body["actions"][0]["value"]
+    approver = body["user"]["username"]
+
     perm_request = perm_request_cache.pop(key, None)
 
-    print("CALLING GCP")
-    print(perm_request)
+    project = perm_request["project"]
+    duration = perm_request["duration"]
+    email = perm_request["email"]
+    roles = perm_request["perms"]
+    user_id = perm_request["user_id"]
+
+    # send text in channel
+    success_config = success_text(
+        project=project,
+        perms=roles,
+        duration=duration,
+        email=email,
+    )
+
+    client.chat_update(
+        channel=perm_request["channel"],
+        ts=perm_request["timestamp"],
+        text="IAM permission approved",
+        blocks=success_config,
+    )
 
     if perm_request != None:
         create_permission(
-            project=perm_request["project"],
-            duration=perm_request["duration"],
-            email=perm_request["email"],
-            roles=perm_request["perms"],
+            project=project,
+            duration=float(duration),
+            email=email,
+            roles=roles,
         )
+
+    # send DM to perm requester
+    success_dm_config = approve_dm(
+        approver=approver,
+        project=project,
+        perms=roles,
+        duration=duration,
+        email=email,
+    )
+
+    client.chat_postMessage(
+        channel=user_id,
+        text="IAM permission approved",
+        blocks=success_dm_config,
+    )
 
 
 @app.action("request-denied")
-def handle_some_action(ack, body):
+def handle_request_rejection(ack, body, client: WebClient):
     ack()
-    print(body)
+
+    key = body["actions"][0]["value"]
+    approver = body["user"]["username"]
+
+    perm_request = perm_request_cache.pop(key, None)
+
+    project = perm_request["project"]
+    duration = perm_request["duration"]
+    email = perm_request["email"]
+    roles = perm_request["perms"]
+    user_id = perm_request["user_id"]
+
+    # send text in channel
+    rejection_config = reject_text(
+        project=project,
+        perms=roles,
+        duration=duration,
+        email=email,
+    )
+
+    client.chat_update(
+        channel=perm_request["channel"],
+        ts=perm_request["timestamp"],
+        text="IAM permission rejected",
+        blocks=rejection_config,
+    )
+
+    # send DM to perm requester
+    reject_dm_config = reject_dm(
+        approver=approver,
+        project=project,
+        perms=roles,
+        duration=duration,
+        email=email,
+    )
+
+    client.chat_postMessage(
+        channel=user_id,
+        text="IAM permission rejected",
+        blocks=reject_dm_config,
+    )
 
 
 # Start your app

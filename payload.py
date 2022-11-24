@@ -167,7 +167,9 @@ def form(perms: List[PermSet] = []):
 
 
 def request_text(project: str, perms: List[str], duration: str, email: str, key: str):
-    perm_string = ":white_check_mark: Permissions: " + ", ".join(perms)
+    perm_string = ":construction: Permissions: " + ", ".join(
+        map(lambda x: f"`{x}`", perms)
+    )
     project_string = ":gear: Project: " + project
     email_string = ":mailbox: User email: " + email
     duration_string = ":timer_clock: Duration: " + duration
@@ -218,5 +220,209 @@ def request_text(project: str, perms: List[str], duration: str, email: str, key:
                     "action_id": "request-denied",
                 },
             ],
+        },
+    ]
+
+
+def success_text(
+    project: str,
+    perms: List[str],
+    duration: str,
+    email: str,
+):
+    perm_string = ":white_check_mark: Permissions: " + ", ".join(
+        map(lambda x: f"`{x}`", perms)
+    )
+    project_string = ":gear: Project: " + project
+    email_string = ":mailbox: User email: " + email
+    duration_string = ":timer_clock: Duration: " + duration
+
+    return [
+        {
+            "type": "section",
+            "text": {
+                "type": "mrkdwn",
+                "text": "You have a new permission request:",
+            },
+        },
+        {
+            "type": "section",
+            "text": {
+                "type": "mrkdwn",
+                "text": perm_string,
+            },
+        },
+        {
+            "type": "section",
+            "text": {"type": "mrkdwn", "text": project_string},
+        },
+        {
+            "type": "section",
+            "text": {"type": "mrkdwn", "text": email_string},
+        },
+        {
+            "type": "section",
+            "text": {"type": "mrkdwn", "text": duration_string},
+        },
+        {"type": "divider"},
+        {
+            "type": "section",
+            "text": {
+                "type": "mrkdwn",
+                "text": ":tada: Permission successfully provided.",
+            },
+        },
+    ]
+
+
+def reject_text(
+    project: str,
+    perms: List[str],
+    duration: str,
+    email: str,
+):
+    perm_string = ":x: Permissions: " + ", ".join(map(lambda x: f"`{x}`", perms))
+    project_string = ":gear: Project: " + project
+    email_string = ":mailbox: User email: " + email
+    duration_string = ":timer_clock: Duration: " + duration
+
+    return [
+        {
+            "type": "section",
+            "text": {
+                "type": "mrkdwn",
+                "text": "You have a new permission request:",
+            },
+        },
+        {
+            "type": "section",
+            "text": {
+                "type": "mrkdwn",
+                "text": perm_string,
+            },
+        },
+        {
+            "type": "section",
+            "text": {"type": "mrkdwn", "text": project_string},
+        },
+        {
+            "type": "section",
+            "text": {"type": "mrkdwn", "text": email_string},
+        },
+        {
+            "type": "section",
+            "text": {"type": "mrkdwn", "text": duration_string},
+        },
+        {"type": "divider"},
+        {
+            "type": "section",
+            "text": {
+                "type": "mrkdwn",
+                "text": ":no_entry: Permission request denied.",
+            },
+        },
+    ]
+
+
+def approve_dm(
+    approver: str,
+    project: str,
+    perms: List[str],
+    duration: str,
+    email: str,
+):
+    title_string = "The following permission request has been approved by @" + approver
+    perm_string = ":white_check_mark: Permissions: " + ", ".join(
+        map(lambda x: f"`{x}`", perms)
+    )
+    project_string = ":gear: Project: " + project
+    email_string = ":mailbox: User email: " + email
+    duration_string = ":timer_clock: Duration: " + duration
+
+    return [
+        {
+            "type": "section",
+            "text": {
+                "type": "mrkdwn",
+                "text": title_string,
+            },
+        },
+        {
+            "type": "section",
+            "text": {
+                "type": "mrkdwn",
+                "text": perm_string,
+            },
+        },
+        {
+            "type": "section",
+            "text": {"type": "mrkdwn", "text": project_string},
+        },
+        {
+            "type": "section",
+            "text": {"type": "mrkdwn", "text": email_string},
+        },
+        {
+            "type": "section",
+            "text": {"type": "mrkdwn", "text": duration_string},
+        },
+        {"type": "divider"},
+        {
+            "type": "section",
+            "text": {
+                "type": "mrkdwn",
+                "text": ":tada: Permission successfully provided.",
+            },
+        },
+    ]
+
+
+def reject_dm(
+    approver: str,
+    project: str,
+    perms: List[str],
+    duration: str,
+    email: str,
+):
+    title_string = "The following permission request has been rejected by @" + approver
+    perm_string = ":x: Permissions: " + ", ".join(map(lambda x: f"`{x}`", perms))
+    project_string = ":gear: Project: " + project
+    email_string = ":mailbox: User email: " + email
+    duration_string = ":timer_clock: Duration: " + duration
+
+    return [
+        {
+            "type": "section",
+            "text": {
+                "type": "mrkdwn",
+                "text": title_string,
+            },
+        },
+        {
+            "type": "section",
+            "text": {
+                "type": "mrkdwn",
+                "text": perm_string,
+            },
+        },
+        {
+            "type": "section",
+            "text": {"type": "mrkdwn", "text": project_string},
+        },
+        {
+            "type": "section",
+            "text": {"type": "mrkdwn", "text": email_string},
+        },
+        {
+            "type": "section",
+            "text": {"type": "mrkdwn", "text": duration_string},
+        },
+        {"type": "divider"},
+        {
+            "type": "section",
+            "text": {
+                "type": "mrkdwn",
+                "text": ":no_entry: Permission request denied.",
+            },
         },
     ]
