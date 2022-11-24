@@ -43,6 +43,7 @@ def form(perms: List[PermSet] = []):
             "title": {"type": "plain_text", "text": "Open Sesame", "emoji": True},
             "submit": {"type": "plain_text", "text": "Submit", "emoji": True},
             "type": "modal",
+            "callback_id": "perm_form",
             "close": {"type": "plain_text", "text": "Cancel", "emoji": True},
             "blocks": [
                 {
@@ -82,10 +83,12 @@ def form(perms: List[PermSet] = []):
                                 "value": "deepsource-production",
                             },
                         ],
+                        "action_id": "project_choice-action",
                     },
                 },
                 {
                     "type": "section",
+                    "block_id": "permission_choice",
                     "text": {
                         "type": "mrkdwn",
                         "text": "Choose Permission",
@@ -94,7 +97,7 @@ def form(perms: List[PermSet] = []):
                         "type": "multi_static_select",
                         "placeholder": {
                             "type": "plain_text",
-                            "text": "Select ermissions you need",
+                            "text": "Select permissions you need",
                             "emoji": True,
                         },
                         "options": multi_select_option_list,
@@ -103,6 +106,7 @@ def form(perms: List[PermSet] = []):
                 },
                 {
                     "type": "input",
+                    "block_id": "duration_choice",
                     "element": {
                         "type": "static_select",
                         "placeholder": {
@@ -136,6 +140,7 @@ def form(perms: List[PermSet] = []):
                                 "value": "60",
                             },
                         ],
+                        "action_id": "duration_select-action",
                     },
                     "label": {
                         "type": "plain_text",
@@ -145,7 +150,11 @@ def form(perms: List[PermSet] = []):
                 },
                 {
                     "type": "input",
-                    "element": {"type": "email_text_input"},
+                    "block_id": "email_input",
+                    "element": {
+                        "type": "email_text_input",
+                        "action_id": "email-action",
+                    },
                     "label": {
                         "type": "plain_text",
                         "text": "Enter your company email",
@@ -155,3 +164,59 @@ def form(perms: List[PermSet] = []):
             ],
         }
     )
+
+
+def request_text(project: str, perms: List[str], duration: str, email: str):
+    perm_string = ":white_check_mark: Permissions: " + ", ".join(perms)
+    project_string = ":gear: Project: " + project
+    email_string = ":mailbox: User email: " + email
+    duration_string = ":timer_clock: Duration: " + duration
+
+    return [
+        {
+            "type": "section",
+            "text": {
+                "type": "mrkdwn",
+                "text": "You have a new permission request:",
+            },
+        },
+        {
+            "type": "section",
+            "text": {
+                "type": "mrkdwn",
+                "text": perm_string,
+            },
+        },
+        {
+            "type": "section",
+            "text": {"type": "mrkdwn", "text": project_string},
+        },
+        {
+            "type": "section",
+            "text": {"type": "mrkdwn", "text": email_string},
+        },
+        {
+            "type": "section",
+            "text": {"type": "mrkdwn", "text": duration_string},
+        },
+        {
+            "type": "actions",
+            "block_id": "approval_choice",
+            "elements": [
+                {
+                    "type": "button",
+                    "text": {"type": "plain_text", "emoji": True, "text": "Approve"},
+                    "style": "primary",
+                    "value": "approve_request",
+                    "action_id": "request-approved",
+                },
+                {
+                    "type": "button",
+                    "text": {"type": "plain_text", "emoji": True, "text": "Deny"},
+                    "style": "danger",
+                    "value": "reject_request",
+                    "action_id": "request-denied",
+                },
+            ],
+        },
+    ]
