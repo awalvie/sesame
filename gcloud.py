@@ -1,19 +1,19 @@
-import sys
+import json
 import subprocess
 from datetime import datetime, timedelta, timezone
 
 
 def search_role(term=None):
+    command = ""
     if term:
-        output = subprocess.run(
-            [f"gcloud iam roles list --format=json --filter='title:{term}'"], shell=True
-        )
-        return output
+        command = f"gcloud iam roles list --format=json --filter='title:{term}'"
+
     else:
-        output = subprocess.run(
-            [f"gcloud iam roles list --format=json --limit=10"], shell=True
-        )
-        return output
+        command = f"gcloud iam roles list --format=json --limit=10"
+
+    output = subprocess.run([command], shell=True, stdout=subprocess.PIPE)
+    return json.loads(output.stdout.decode("utf-8"))
+
 
 
 def create_permission(project, email, roles, duration):
