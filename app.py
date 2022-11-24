@@ -1,9 +1,10 @@
 import os
+import uuid
 from dotenv import load_dotenv
 from slack_bolt import App
 from slack_bolt.adapter.socket_mode import SocketModeHandler
 
-from gcloud import search_role
+from gcloud import create_permission, search_role
 from payload import form, request_text
 
 load_dotenv()
@@ -20,6 +21,8 @@ perm_list = search_role()
 
 # generate form config
 form_config = form(perm_list)
+
+perm_request_cache = {}
 
 
 @app.command("/sesame")
@@ -55,13 +58,28 @@ def handle_view_submission_events(ack, body, client):
     for perm in permDictList:
         perms.append(perm["value"])
 
-    request_config = request_text(project, perms, duration, email)
+    key = uuid.uuid4().hex
 
-    client.chat_postMessage(
+    request_config = request_text(project, perms, duration, email, key)
+
+    result = client.chat_postMessage(
         channel=SLACK_PRIVATE_CHANNEL_ID,
         text="IAM permission requested",
         blocks=request_config,
     )
+
+    if result["ok"]:
+        timestamp = result["ts"]
+        channel = result["channel"]
+        perm_request_cache[key] = {
+            "project": project,
+            "perms": perms,
+            "duration": float(duration),
+            "email": email,
+            "channel": channel,
+            "timestamp": timestamp,
+        }
+        print(perm_request_cache)
 
 
 @app.message("send")
@@ -90,15 +108,28 @@ def send_text(ack, client):
 
 
 @app.action("request-approved")
-def handle_some_action(ack, body, logger):
+def handle_request_approval(ack, body):
     ack()
-    logger.info(body)
+
+    key = body["actions"][0]["value"]
+    perm_request = perm_request_cache.pop(key, None)
+
+    print("CALLING GCP")
+    print(perm_request)
+
+    if perm_request != None:
+        create_permission(
+            project=perm_request["project"],
+            duration=perm_request["duration"],
+            email=perm_request["email"],
+            roles=perm_request["perms"],
+        )
 
 
 @app.action("request-denied")
-def handle_some_action(ack, body, logger):
+def handle_some_action(ack, body):
     ack()
-    logger.info(body)
+    print(body)
 
 
 # Start your app

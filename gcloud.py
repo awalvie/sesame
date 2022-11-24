@@ -16,7 +16,6 @@ def search_role(term=None):
     return json.loads(output.stdout.decode("utf-8"))
 
 
-
 def create_permission(project, email, roles, duration):
     for role in roles:
         expiration_timestamp = (
@@ -33,12 +32,19 @@ def create_permission(project, email, roles, duration):
         command = base_command + member + role_flag + condition
 
         try:
-            subprocess.check_output(
+            output = subprocess.check_output(
                 [f"{command}"],
                 shell=True,
             )
+
+            print(output)
         except subprocess.CalledProcessError as e:
+            print(e.output)
             logger.error(e.output)
         else:
-            logger.info(f"Successfully gave permission: {role} for user: {email} for duration {duration}m")
-
+            print(
+                f"Successfully gave permission: {role} for user: {email} for duration {duration}m"
+            )
+            logger.info(
+                f"Successfully gave permission: {role} for user: {email} for duration {duration}m"
+            )

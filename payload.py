@@ -166,7 +166,7 @@ def form(perms: List[PermSet] = []):
     )
 
 
-def request_text(project: str, perms: List[str], duration: str, email: str):
+def request_text(project: str, perms: List[str], duration: str, email: str, key: str):
     perm_string = ":white_check_mark: Permissions: " + ", ".join(perms)
     project_string = ":gear: Project: " + project
     email_string = ":mailbox: User email: " + email
@@ -207,14 +207,14 @@ def request_text(project: str, perms: List[str], duration: str, email: str):
                     "type": "button",
                     "text": {"type": "plain_text", "emoji": True, "text": "Approve"},
                     "style": "primary",
-                    "value": "approve_request",
+                    "value": key,
                     "action_id": "request-approved",
                 },
                 {
                     "type": "button",
                     "text": {"type": "plain_text", "emoji": True, "text": "Deny"},
                     "style": "danger",
-                    "value": "reject_request",
+                    "value": key,
                     "action_id": "request-denied",
                 },
             ],
