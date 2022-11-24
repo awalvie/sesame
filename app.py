@@ -1,17 +1,14 @@
 import os
 from dotenv import load_dotenv
-import json
 from slack_bolt import App
 from slack_bolt.adapter.socket_mode import SocketModeHandler
+
+from payload import form
 
 load_dotenv()
 
 SLACK_BOT_TOKEN = os.getenv("SLACK_BOT_TOKEN")
 SLACK_APP_TOKEN = os.getenv("SLACK_APP_TOKEN")
-
-payload_file = open("payload.json")
-payload = json.load(payload_file)
-payload_file.close()
 
 # Initializes your app with your bot token and socket mode handler
 app = App(token=SLACK_BOT_TOKEN)
@@ -27,7 +24,7 @@ def open_modal(ack, body, client):
         # Pass a valid trigger_id within 3 seconds of receiving it
         trigger_id=body["trigger_id"],
         # View payload
-        view=payload["form"],
+        view=form(),
     )
 
 

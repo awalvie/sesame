@@ -1,40 +1,34 @@
-{
-    "form": {
-        "title": {
-            "type": "plain_text",
-            "text": "Open Sesame",
-            "emoji": true
-        },
-        "submit": {
-            "type": "plain_text",
-            "text": "Submit",
-            "emoji": true
-        },
+from typing import List, TypedDict
+
+
+class PermSet(TypedDict):
+    name: str
+    year: int
+
+
+def form(perms: List[PermSet] = []):
+    return {
+        "title": {"type": "plain_text", "text": "Open Sesame", "emoji": True},
+        "submit": {"type": "plain_text", "text": "Submit", "emoji": True},
         "type": "modal",
-        "close": {
-            "type": "plain_text",
-            "text": "Cancel",
-            "emoji": true
-        },
+        "close": {"type": "plain_text", "text": "Cancel", "emoji": True},
         "blocks": [
             {
                 "type": "section",
                 "text": {
                     "type": "plain_text",
                     "text": ":wave: Hey, please fill this form to request permission from infra team.",
-                    "emoji": true
-                }
+                    "emoji": True,
+                },
             },
-            {
-                "type": "divider"
-            },
+            {"type": "divider"},
             {
                 "type": "input",
                 "block_id": "project_choice",
                 "label": {
                     "type": "plain_text",
                     "text": "Select project",
-                    "emoji": true
+                    "emoji": True,
                 },
                 "element": {
                     "type": "radio_buttons",
@@ -43,61 +37,61 @@
                             "text": {
                                 "type": "plain_text",
                                 "text": "Development",
-                                "emoji": true
+                                "emoji": True,
                             },
-                            "value": "deepsource-development"
+                            "value": "deepsource-development",
                         },
                         {
                             "text": {
                                 "type": "plain_text",
                                 "text": "Production",
-                                "emoji": true
+                                "emoji": True,
                             },
-                            "value": "deepsource-production"
-                        }
-                    ]
-                }
+                            "value": "deepsource-production",
+                        },
+                    ],
+                },
             },
             {
                 "type": "section",
                 "text": {
                     "type": "mrkdwn",
-                    "text": "*Test block with multi static select*"
+                    "text": "Choose Permission",
                 },
                 "accessory": {
                     "type": "multi_static_select",
                     "placeholder": {
                         "type": "plain_text",
-                        "text": "Select options",
-                        "emoji": true
+                        "text": "Select ermissions you need",
+                        "emoji": True,
                     },
                     "options": [
                         {
                             "text": {
                                 "type": "plain_text",
                                 "text": "*this is plain_text text*",
-                                "emoji": true
+                                "emoji": True,
                             },
-                            "value": "value-0"
+                            "value": "value-0",
                         },
                         {
                             "text": {
                                 "type": "plain_text",
                                 "text": "*this is plain_text text*",
-                                "emoji": true
+                                "emoji": True,
                             },
-                            "value": "value-1"
+                            "value": "value-1",
                         },
                         {
                             "text": {
                                 "type": "plain_text",
                                 "text": "*this is plain_text text*",
-                                "emoji": true
+                                "emoji": True,
                             },
-                            "value": "value-2"
-                        }
-                    ]
-                }
+                            "value": "value-2",
+                        },
+                    ],
+                },
             },
             {
                 "type": "input",
@@ -106,52 +100,49 @@
                     "placeholder": {
                         "type": "plain_text",
                         "text": "Select a duration",
-                        "emoji": true
+                        "emoji": True,
                     },
                     "options": [
                         {
                             "text": {
                                 "type": "plain_text",
                                 "text": "10m",
-                                "emoji": true
+                                "emoji": True,
                             },
-                            "value": "10"
+                            "value": "10",
                         },
                         {
                             "text": {
                                 "type": "plain_text",
                                 "text": "30m",
-                                "emoji": true
+                                "emoji": True,
                             },
-                            "value": "30"
+                            "value": "30",
                         },
                         {
                             "text": {
                                 "type": "plain_text",
                                 "text": "1 hour",
-                                "emoji": true
+                                "emoji": True,
                             },
-                            "value": "60"
-                        }
-                    ]
+                            "value": "60",
+                        },
+                    ],
                 },
                 "label": {
                     "type": "plain_text",
                     "text": "Choose duration",
-                    "emoji": true
-                }
+                    "emoji": True,
+                },
             },
             {
                 "type": "input",
-                "element": {
-                    "type": "email_text_input"
-                },
+                "element": {"type": "email_text_input"},
                 "label": {
                     "type": "plain_text",
                     "text": "Enter your company email",
-                    "emoji": true
-                }
-            }
-        ]
+                    "emoji": True,
+                },
+            },
+        ],
     }
-}
