@@ -23,16 +23,21 @@ def create_permission(project, email, roles, duration):
             .replace(microsecond=0)
             .isoformat()
         )
-        print(expiration_timestamp)
 
         base_command = f"gcloud projects add-iam-policy-binding {project} "
         member = f"--member 'user:{email}' "
-        role = f"--role {role} "
+        role_flag = f"--role {role} "
         condition = f"--condition=\"expression=request.time < timestamp('{expiration_timestamp}'),title=temporary_permission\" "
 
-        command = base_command + member + role + condition
-        print(command)
+        command = base_command + member + role_flag + condition
 
-        output = subprocess.run([f"{command}"], shell=True)
-        return output
+        subprocess.run(
+            [f"{command}"],
+            shell=True,
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.STDOUT,
+        )
+
+        #  logger.info(f"Successfully gave permission: {role} for user: {email} for duration {duration}m")
+
 
