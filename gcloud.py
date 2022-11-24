@@ -32,13 +32,13 @@ def create_permission(project, email, roles, duration):
 
         command = base_command + member + role_flag + condition
 
-        subprocess.run(
-            [f"{command}"],
-            shell=True,
-            stdout=subprocess.DEVNULL,
-            stderr=subprocess.STDOUT,
-        )
-
-        #  logger.info(f"Successfully gave permission: {role} for user: {email} for duration {duration}m")
-
+        try:
+            subprocess.check_output(
+                [f"{command}"],
+                shell=True,
+            )
+        except subprocess.CalledProcessError as e:
+            logger.error(e.output)
+        else:
+            logger.info(f"Successfully gave permission: {role} for user: {email} for duration {duration}m")
 
