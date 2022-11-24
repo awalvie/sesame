@@ -1,6 +1,7 @@
 import json
 import subprocess
 from datetime import datetime, timedelta, timezone
+from log import logger
 
 
 def search_role(term=None):
