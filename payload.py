@@ -21,9 +21,13 @@ class SelectOption(TypedDict):
     value: str
 
 
-def form(perms: List[PermSet] = []):
+duration_options = [5, 10, 15, 30, 60, 120, 360, 720, 1440]
+
+
+def form(perms: List[PermSet] = [], user_email: str = ""):
 
     multi_select_option_list: List[SelectOption] = []
+    date_option_list: List[SelectOption] = []
 
     for perm in perms:
 
@@ -37,6 +41,19 @@ def form(perms: List[PermSet] = []):
         }
 
         multi_select_option_list.append(formatted_perm)
+
+    for duration in duration_options:
+
+        formatted_duration: SelectOption = {
+            "text": {
+                "text": f"{duration // 60} h" if duration > 60 else f"{duration} m",
+                "type": "plain_text",
+                "emoji": True,
+            },
+            "value": str(duration),
+        }
+
+        date_option_list.append(formatted_duration)
 
     return json.dumps(
         {
@@ -72,7 +89,7 @@ def form(perms: List[PermSet] = []):
                                     "text": "Development",
                                     "emoji": True,
                                 },
-                                "value": "deepsource-development",
+                                "value": "deepsource-dev",
                             },
                             {
                                 "text": {
@@ -114,32 +131,7 @@ def form(perms: List[PermSet] = []):
                             "text": "Select a duration",
                             "emoji": True,
                         },
-                        "options": [
-                            {
-                                "text": {
-                                    "type": "plain_text",
-                                    "text": "10m",
-                                    "emoji": True,
-                                },
-                                "value": "10",
-                            },
-                            {
-                                "text": {
-                                    "type": "plain_text",
-                                    "text": "30m",
-                                    "emoji": True,
-                                },
-                                "value": "30",
-                            },
-                            {
-                                "text": {
-                                    "type": "plain_text",
-                                    "text": "1 hour",
-                                    "emoji": True,
-                                },
-                                "value": "60",
-                            },
-                        ],
+                        "options": date_option_list,
                         "action_id": "duration_select-action",
                     },
                     "label": {
@@ -154,6 +146,7 @@ def form(perms: List[PermSet] = []):
                     "element": {
                         "type": "email_text_input",
                         "action_id": "email-action",
+                        "initial_value": user_email,
                     },
                     "label": {
                         "type": "plain_text",

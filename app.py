@@ -20,9 +20,6 @@ app = App(token=SLACK_BOT_TOKEN)
 # get perms available from GCP
 perm_list = search_role()
 
-# generate form config
-form_config = form(perm_list)
-
 perm_request_cache = {}
 
 
@@ -31,6 +28,16 @@ perm_request_cache = {}
 def open_modal(ack, body, client: WebClient):
     # Acknowledge the command request
     ack()
+
+    user_id = body["user"]["id"]
+
+    user_response = app.client.users_info(user=user_id)
+    user_email = user_response["user"]["profile"]["email"]
+
+    # generate form config
+    form_config = form(perms=perm_list, user_email=user_email)
+
+    print(form_config)
 
     # Call views_open with the built-in client
     client.views_open(
@@ -184,6 +191,12 @@ def handle_request_rejection(ack, body, client: WebClient):
         text="IAM permission rejected",
         blocks=reject_dm_config,
     )
+
+
+@app.action("perm_select-action")
+def handle_some_action(ack, body):
+    ack()
+    print(body)
 
 
 # Start your app
